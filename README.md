@@ -24,3 +24,14 @@ After 6-12 hours or until your slow log is of 1Gb of size, stop the recording by
 Then run ```./digest.sh /path/your/slow.log``` and wait for it to complete.
 
 It should create a series of .txt files which are the foundation of the Performance Audit.
+
+
+# F.A.Q.
+## Why did you set the long_query_time to 0 ?
+This makes the slow log file log all the queries with additional details found in the slow log. 
+During the time the long_query_time is set to 0, you are getting a good view of what is run on your database which you can later analyse.
+
+## Why did you set the min_examined_row_limit to 1?
+
+## Will running this script cause load on the server? Is it safe to run?
+
