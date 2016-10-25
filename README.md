@@ -18,6 +18,7 @@ You should make sure that the slow query file exists, is being written to
 and ideally, empty it out by using ```echo "" >/path/your/slow.log``` before starting.
 
 Keep an eye on the space available on the directory where the slow log is on and make sure that it is in no way going to reach the space limit - otherwise, your MySQL server may crash.
+
 After 6-12 hours or until your slow log is of 1Gb of size, stop the recording by setting the long_query_time back to what it was before and min_examined_row_limit as well.
 
 Then run ```./digest.sh /path/your/slow.log``` and wait for it to complete.
