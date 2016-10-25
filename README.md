@@ -12,8 +12,14 @@ The range of queries recorded in the logs, the quality and relevance of those qu
 
 It is advised that you take a period of 6-12 hours where you record all your queries to the slow log.
 In order to do that, set the following variable inside the MySQL shell:
-```set global long_query_time=0; set long_query_time=0; flush logs;```
+```set global long_query_time=0; set long_query_time=0; set global min_examined_row_limit=1; set min_examined_row_limit=1; flush logs;```
 
-You should make sure that the slow query file exists and is being written to 
+You should make sure that the slow query file exists, is being written to 
 and ideally, empty it out by using ```echo "" >/path/your/slow.log``` before starting.
 
+Keep an eye on the space available on the directory where the slow log is on and make sure it is in now way going to reach the space limit - otherwise, your MySQL server may crash.
+After 6-12 hours or until your slow log is of 1Gb of size, stop the recording by setting the long_query_time back to what it was before and min_examined_row_limit as well.
+
+Then run ```./digest.sh /path/your/slow.log``` and wait for it to complete.
+
+It should create a series of .txt files which are the foundation of the Performance Audit.
