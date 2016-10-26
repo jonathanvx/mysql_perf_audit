@@ -27,11 +27,12 @@ It should create a series of .txt files which are the foundation of the Performa
 
 
 # F.A.Q.
-## Why did you set the long_query_time to 0 ?
+### Why did you set the long_query_time to 0 ?
 This makes the slow log file log all the queries with additional details found in the slow log. 
 During the time the long_query_time is set to 0, you are getting a good view of what is run on your database which you can later analyse.
 
-## Why did you set the min_examined_row_limit to 1?
+### Why did you set the min_examined_row_limit to 1?
 
-## Will running this script cause load on the server? Is it safe to run?
+### Will running this script cause load on the server? Is it safe to run?
 
+### But I use RDS. How would I use this?
