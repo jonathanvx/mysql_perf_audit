@@ -32,7 +32,7 @@ This makes the slow log file log all the queries with additional details found i
 During the time the long_query_time is set to 0, you are getting a good view of what is run on your database which you can later analyse.
 
 ### Why did you set the min_examined_row_limit to 1?
-This is a good question. This is an attempt to clean up the slow logs to hold more relevant set of queries.
+This setting is an attempt to clean up the slow logs to hold more relevant set of queries.
 What happens often, sometimes with certain blog packages, the slow log gets flooded with with commands like ``SET timestamp=``` for example. This setting helps get queries that have examined at least 1 row from a table. This is what I am interested in, it appears to get relevant information and it keeps the slow log smaller. 
 
 What it does miss is queries where the result was 0 rows and the index was used to determine that no rows were needed to be examined.
@@ -40,6 +40,14 @@ While that may change the weight of certain queries in the report, from my exper
 
 
 ### Will running this script cause load on the server? Is it safe to run?
+
+There a two issues here, IO and CPU usage. The writting to the slow log itself, uses IO. There are large websites that are sensitive about this and use ```tcpdump``` to send the IO to another server. However, the companies that I usually deal with, this is never a problem. It is more common to run out of space while taking the slow log.
+
+The second issue is CPU: pt-query-digest uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run pt-query-digest there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
+
+If this will be an issue in the future, I will make changes to the script.
+
+Another important step that this script takes is try to reduce the IO is to compress the slow log and then uncompress it to read into pt-query-digest. This greatly reduces repeat usage of IO and as pt-query-digest cannot process the data that quickly, the decompression and CPU usage is throttled greatly.
 
 ### But I use RDS. How would I use this?
 
