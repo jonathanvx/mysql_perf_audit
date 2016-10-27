@@ -13,6 +13,7 @@ echo "Processing Slow log file.."
 zcat slow.log.gz | ./pt-query-digest --limit=8 > slow.txt
 zcat slow.log.gz | ./pt-query-digest --filter '($event->{Rows_examined} > 1000)' --limit=8>bulky.txt
 zcat slow.log.gz | ./pt-query-digest --limit=5 --group-by tables >tables.txt 2>/dev/null
+zcat slow.log.gz | ./pt-query-digest --limit=8 --order-by=Lock_time:max > locked.txt 2>/dev/null
 zcat slow.log.gz | ./pt-query-digest --limit=5 --group-by tables --order-by=Lock_time:sum > locked_tables.txt 2>/dev/null
 zcat slow.log.gz | ./pt-query-digest  --filter '($event->{arg} =~ m/^(!?select)/)' --limit=8 --order-by=Query_time:max > select.txt
 zcat slow.log.gz | ./pt-query-digest  --filter '($event->{Rows_examined} > 0) && ($event->{Row_ratio} = $event->{Rows_sent} / ($event->{Rows_examined})) && 1' --limit=8 > select_ratio.txt
