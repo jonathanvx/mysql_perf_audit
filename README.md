@@ -43,11 +43,11 @@ While that may change the weight of certain queries in the report, from my exper
 
 There a two issues here, IO and CPU usage. The writting to the slow log itself, uses IO. There are large websites that are sensitive about this and use ```tcpdump``` to send the IO to another server. However, the companies that I usually deal with, this is never a problem. It is more common to run out of space while taking the slow log.
 
-The second issue is CPU: pt-query-digest uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run pt-query-digest there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
+The second issue is CPU: pt-query-digest uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run ```pt-query-digest``` there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
 
 If this will be an issue in the future, I will make changes to the script.
 
-Another important step that this script takes is try to reduce the IO is to compress the slow log and then uncompress it to read into pt-query-digest. This greatly reduces repeat usage of IO and as pt-query-digest cannot process the data that quickly, the decompression and CPU usage is throttled greatly.
+Another important step that this script takes is try to reduce the IO is to compress the slow log and then uncompress it to read into ```pt-query-digest```. This greatly reduces repeat usage of IO and as ```pt-query-digest``` cannot process the data that quickly, the decompression and CPU usage is throttled greatly.
 
 ### But I use RDS. How would I use this?
 
