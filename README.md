@@ -4,7 +4,11 @@ This is a bash script that gathers data about your MySQL system for the purpose 
 Currently, this script expects:
 * You are running this on the MySQL database server
 * You have a .my.cnf file for your host/user/password set in the home directory for the user on your linux server
-* You have downloaded ```pt-query-diget, pt-summary and pt-mysql-summary``` from: ```wget percona.com/get/pt-query-digest```
+* You have downloaded ```pt-query-diget, pt-summary and pt-mysql-summary``` from: 
+```wget percona.com/get/pt-query-digest```
+```wget percona.com/get/pt-summary```
+```wget percona.com/get/pt-mysql-summary```
+
 * That these pt tools have been ```chmod a+x pt-*``` as well as ```chmod a+x digest.sh```
 
 Query Digest processes MySQL database logs and gives out a report.
@@ -20,6 +24,8 @@ and ideally, empty it out by using ```echo "" >/path/your/slow.log``` before sta
 Keep an eye on the space available on the directory where the slow log is on and make sure that it is in no way going to reach the space limit - otherwise, your MySQL server may crash.
 
 After 6-12 hours or until your slow log is of 1Gb of size, stop the recording by setting the long_query_time back to what it was before and min_examined_row_limit as well.
+
+If not already, consider creating a directory for this script, as it will create a lot of text files.
 
 Then run ```./digest.sh /path/your/slow.log``` and wait for it to complete.
 
