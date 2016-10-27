@@ -42,3 +42,5 @@ While that may change the weight of certain queries in the report, from my exper
 ### Will running this script cause load on the server? Is it safe to run?
 
 ### But I use RDS. How would I use this?
+
+There is [a way to get slow log](http://www.iheavy.com/2014/06/02/howto-automate-mysql-slow-query-analysis-with-amazon-rds/) from AWS for pt-query-digest to process them.
