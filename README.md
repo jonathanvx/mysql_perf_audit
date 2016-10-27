@@ -4,7 +4,7 @@ This is a bash script that gathers data about your MySQL system for the purpose 
 Currently, this script expects:
 * You are running this on the MySQL database server
 * You have a .my.cnf file for your host/user/password set in the home directory for the user on your linux server
-* You have downloaded pt-query-diget, pt-summary and pt-mysql-summary from: ```wget percona.com/get/pt-query-digest```
+* You have downloaded ```pt-query-diget, pt-summary and pt-mysql-summary``` from: ```wget percona.com/get/pt-query-digest```
 * That these pt tools have been ```chmod a+x pt-*``` as well as ```chmod a+x digest.sh```
 
 Query Digest processes MySQL database logs and gives out a report.
@@ -43,7 +43,7 @@ While that may change the weight of certain queries in the report, from my exper
 
 There a two issues here, IO and CPU usage. The writting to the slow log itself, uses IO. There are large websites that are sensitive about this and use ```tcpdump``` to send the IO to another server. However, the companies that I usually deal with, this is never a problem. It is more common to run out of space while taking the slow log.
 
-The second issue is CPU: pt-query-digest uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run ```pt-query-digest``` there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
+The second issue is CPU: ```pt-query-digest``` uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run ```pt-query-digest``` there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
 
 If this will be an issue in the future, I will make changes to the script.
 
@@ -51,4 +51,4 @@ Another important step that this script takes is try to reduce the IO is to comp
 
 ### But I use RDS. How would I use this?
 
-There is [a way to get a slow log](http://www.iheavy.com/2014/06/02/howto-automate-mysql-slow-query-analysis-with-amazon-rds/) from AWS for pt-query-digest to process them.
+There is [a way to get a slow log](http://www.iheavy.com/2014/06/02/howto-automate-mysql-slow-query-analysis-with-amazon-rds/) from AWS for ```pt-query-digest``` to process them.
