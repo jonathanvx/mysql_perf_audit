@@ -68,3 +68,13 @@ Well, you can see exactly what I will do on your DB server by going over thie ba
 
 Originally, the idea of this script was to have it run on DB servers that I do not have access to, by the system administrator and afterwards, emailed back the reports from the script. 
 But it is very likely, that for DB servers that I do have access to, I will run this script in its exact form or similar commands found in the script.
+
+### Can you show me a sample of how a Performance Audit report would look like?
+```
+**Recommendation for Query 3 in the Slow log report:**
+All the queries are optimal on this table, apart from one. This is also a very small table with few indexes to slow down updates.
+It is likely that the query with "WHERE autoload = 'yes'" does a full table scan and causes a full table lock. 
+We should try adding an index to resolve that:
+alter table wp_site.wp_options add key autoload(autoload);
+This exact issue can be found on this forum/bug site for wordpress https://core.trac.wordpress.org/ticket/24044
+```
