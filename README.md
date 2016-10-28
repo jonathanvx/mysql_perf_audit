@@ -52,6 +52,8 @@ While that may change the weight of certain queries in the report, from my exper
 
 There a two issues here, IO and CPU usage. The writting to the slow log itself, uses IO. There are large websites that are sensitive about this and use ```tcpdump``` to send the IO to another server. However, the companies that I usually deal with, this is never a problem. It is more common to run out of space while taking the slow log.
 
+If you are sensitive about this, I would recommend moving the slow log to a replica/slave server that has less traffic to run this script on.
+
 The second issue is CPU: ```pt-query-digest``` uses perl and you would see a perl thread take up 100% of a CPU thread if you run ```top```. In 2010-2011, it was common practice to move the slow log to another process and run ```pt-query-digest``` there. However, we now have less of an issue of free threads and this bash script does run things that need to query the database for information (such as ```show tables``` and ```explain select```). Weighing the pros and cons as well as past experience, it is preferable to run this script on the same machine as the database server. 
 
 If this will be an issue in the future, I will make changes to the script.
@@ -64,7 +66,7 @@ There is [a way to get a slow log](http://www.iheavy.com/2014/06/02/howto-automa
 
 ### Are you doing something funny on my DB server? O_o
 
-Well, you can see exactly what I will do on your DB server by going over thie bash script. 
+Well, you can see exactly what I will do on your DB server by going over this bash script. 
 
 Originally, the idea of this script was to have it run on DB servers that I do not have access to, by the system administrator and afterwards, emailed back the reports from the script. 
 But it is very likely, that for DB servers that I do have access to, I will run this script in its exact form or similar commands found in the script.
