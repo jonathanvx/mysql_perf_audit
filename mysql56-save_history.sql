@@ -21,6 +21,8 @@ FROM information_schema.columns a
     ON a.column_name=b.column_name AND b.table_name='events_statements_history'
 WHERE a.table_schema='performance_schema' AND a.table_name='events_statements_summary_by_digest';
 
+-- TODO: UPDATE if existing_duration is less than new_duration
+
 PREPARE stmt FROM @stmt;
 
 EXECUTE stmt;
