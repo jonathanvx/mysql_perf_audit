@@ -26,7 +26,7 @@ do
         database="${line%.*}"
         table="${line#*.}"
         event='$event'
-        zcat slow.log.gz | ./pt-query-digest --filter "(($event->{db} || '') =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))" --limit=100% --explain 127.0.0.1 --sample 99 > $line.txt
+        zcat slow.log.gz | ./pt-query-digest --filter '(($event->{db} || "") =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))' --limit=100% --explain 127.0.0.1 --sample 99 > $line.txt
 done < "table_list.txt"
 
 rm -f *.gz
