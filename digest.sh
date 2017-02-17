@@ -1,24 +1,41 @@
 #!/bin/sh
-echo "Getting background information..."
-./pt-summary >summary.txt 2>/dev/null
-./pt-mysql-summary >mysql_summary.txt 2>/dev/null
-cp /etc/my.cnf . 2>/dev/null
-cp /etc/mysql/my.cnf . 2>/dev/null
-df -h > df.txt
+path_to_executable=$(which pt-query-digest 2>/dev/null)
+ if [ -x "$path_to_executable" ] ; then
+    qdigest=$path_to_executable
+ elif [ -f pt-query-digest ] ; then
+    qdigest='./pt-query-digest'
+ else
+    wget percona.com/get/pt-query-digest
+    chmod a+x pt-query-digest
+    qdigest='./pt-query-digest'
+ fi
 
 echo "Retrieving Slow log file.."
-cat $1 | gzip - > slow.log.gz
+if [ ! -f slow.log.gz ]; then
+   cat $1 | gzip - > slow.log.gz
+fi
 
 echo "Processing Slow log file.."
-zcat slow.log.gz | ./pt-query-digest --limit=8 > slow.txt
-zcat slow.log.gz | ./pt-query-digest --filter '($event->{Rows_examined} > 1000)' --limit=8>bulky.txt
-zcat slow.log.gz | ./pt-query-digest --limit=5 --group-by tables >tables.txt 2>/dev/null
-zcat slow.log.gz | ./pt-query-digest --limit=8 --order-by=Lock_time:max > locked.txt 2>/dev/null
-zcat slow.log.gz | ./pt-query-digest --limit=5 --group-by tables --order-by=Lock_time:sum > locked_tables.txt 2>/dev/null
-zcat slow.log.gz | ./pt-query-digest  --filter '($event->{arg} =~ m/^(!?select)/)' --limit=8 --order-by=Query_time:max > select.txt
-zcat slow.log.gz | ./pt-query-digest  --filter '($event->{Rows_examined} > 0) && ($event->{Row_ratio} = $event->{Rows_sent} / ($event->{Rows_examined})) && 1' --limit=8 > select_ratio.txt
-cat slow.txt tables.txt select.txt bulky.txt locked_tables.txt | grep '#' | grep 'SHOW' | sed 's/#    //g' | sort | uniq | mysql -f > showtables.txt 2>/dev/null
-cat slow.txt tables.txt locked_tables.txt | grep '#' | grep 'SHOW' | sed 's/#    //g' | sort | uniq | grep 'SHOW CREATE TABLE' | sed 's/SHOW CREATE TABLE //g' | sed 's/`//g' | sed 's/\\G//g' | grep -E '(\.){1}' > table_list.txt
+zcat slow.log.gz | $qdigest --limit=8 > slow.txt &
+zcat slow.log.gz | $qdigest --limit=8 --order-by=Lock_time:sum > locked.txt 2>/dev/null &
+zcat slow.log.gz | $qdigest  --filter '($event->{Rows_examined} > 0) && ($event->{Row_ratio} = $event->{Rows_sent} / ($event->{Rows_examined})) && 1' --limit=8 > select_ratio.txt &
+wait
+
+echo '' > result.txt
+cat slow.txt | sed -nr '/# Profile/,/# MISC/p' | sed 's/# Profile/# Top Slow Queries:/g' >> result.txt
+echo '' >> result.txt
+cat locked.txt | sed -nr '/# Profile/,/# MISC/p' | sed 's/# Profile/# Top Locked Queries:/g' >> result.txt
+echo '' >> result.txt
+cat select_ratio.txt | sed -nr '/# Profile/,/# MISC/p' | sed 's/# Profile/# Top Queries with high Select\/Sent Ratio:/g' >> result.txt
+cat slow.txt | sed -nr '/# MISC/,//p' >> result.txt
+cat locked.txt | sed -nr '/# MISC/,//p' >> result.txt
+cat select_ratio.txt | sed -nr '/# MISC/,//p' >> result.txt
+
+cat slow.txt select_ratio.txt locked.txt | grep '#' | grep 'SHOW' | sed 's/#    //g' | sort | uniq -c | sort -nr | grep 'SHOW CREATE TABLE' | head -n 5 | sed 's/SHOW CREATE TABLE //g' | sed 's/`//g' | sed 's/\\G//g' | grep -E '(\.){1}' | awk '{print $2}' > table_list.txt
+
+rm slow.txt 
+rm locked.txt 
+rm select_ratio.txt
 
 echo "Retreiving data on possible bottleneck tables.."
 while read -r line
@@ -26,8 +43,15 @@ do
         database="${line%.*}"
         table="${line#*.}"
         event='$event'
-        zcat slow.log.gz | ./pt-query-digest --filter '(($event->{db} || "") =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))' --limit=100% --explain 127.0.0.1 --sample 99 > $line.txt
+        zcat slow.log.gz | $qdigest --filter "(($event->{db} || '') =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))" --limit=100% > $line.txt &
 done < "table_list.txt"
+wait
 
-rm -f *.gz
+rm table_list.txt
+
 echo "Reports generated."
+
+if [ ! -f reports.tar.gz ]; then
+  tar czvf reports.tar.gz *.txt 2>/dev/null
+fi
+
