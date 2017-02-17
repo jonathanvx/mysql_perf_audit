@@ -2,8 +2,8 @@
 
 This is a bash script that gathers data about your MySQL system for the purpose of carrying out a **Performance Audit**.
 Currently, this script expects:
-* You are running this on the MySQL database server
 * You have a .my.cnf file for your host/user/password set in the home directory for the user on your linux server
+* If you do not have percona-toolkit installed, then that the server has access to the internet to download them for you.
 
 
 Query Digest processes MySQL database logs and gives out a report.
