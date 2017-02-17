@@ -56,13 +56,6 @@ Another important step that this script takes is try to reduce the IO is to comp
 
 There is [a way to get a slow log](http://www.iheavy.com/2014/06/02/howto-automate-mysql-slow-query-analysis-with-amazon-rds/) from AWS for ```pt-query-digest``` to process them.
 
-### Are you doing something funny on my DB server? O_o
-
-Well, you can see exactly what I will do on your DB server by going over this bash script. 
-
-Originally, the idea of this script was to have it run on DB servers that I do not have access to, by the system administrator and afterwards, emailed back the reports from the script. 
-But it is very likely, that for DB servers that I do have access to, I will run this script in its exact form or similar commands found in the script.
-
 ### Can you show me a sample of how a Performance Audit report would look like?
 
 >**Recommendation for Query 3 in the Slow log report:**
