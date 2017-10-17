@@ -10,15 +10,19 @@ path_to_executable=$(which pt-query-digest 2>/dev/null)
     qdigest='./pt-query-digest'
  fi
 
-echo "Retrieving Slow log file.."
-if [ ! -f slow.log.gz ]; then
-   cat $1 | gzip - > slow.log.gz
+if [ -z $1 ] ; then
+  SLOW='slow.log'
+else
+  SLOW=$1
 fi
 
+
 echo "Processing Slow log file.."
-zcat slow.log.gz | $qdigest --limit=8 > slow.txt &
-zcat slow.log.gz | $qdigest --limit=8 --order-by=Lock_time:sum > locked.txt 2>/dev/null &
-zcat slow.log.gz | $qdigest  --filter '($event->{Rows_examined} > 0) && ($event->{Row_ratio} = $event->{Rows_sent} / ($event->{Rows_examined})) && 1' --limit=8 > select_ratio.txt &
+$qdigest $SLOW --limit=25 > slow.txt &
+$qdigest $SLOW --limit=8 --order-by=Lock_time:sum > locked.txt 2>/dev/null &
+$qdigest $SLOW --filter '($event->{Rows_examined} > 0) && ($event->{Row_ratio} = $event->{Rows_sent} / ($event->{Rows_examined})) && 1' --limit=8 > select_ratio.txt &
+$qdigest $SLOW --limit=8 --order-by=Lock_time:max  > lockedmax.txt 2>/dev/null &
+$qdigest $SLOW --limit=8 --group-by=distill  > distill.txt &
 wait
 
 echo '' > result.txt
