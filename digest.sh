@@ -47,7 +47,7 @@ do
         database="${line%.*}"
         table="${line#*.}"
         event='$event'
-        zcat slow.log.gz | $qdigest --filter "(($event->{db} || '') =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))" --limit=100% > $line.txt &
+        $qdigest $SLOW --filter "(($event->{db} || '') =~ m/$database/) && ((($event->{arg}) =~ m/$table /) || (($event->{arg}) =~ m/\`$table\`/))" --limit=100% > $line.txt &
 done < "table_list.txt"
 wait
 
